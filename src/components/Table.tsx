@@ -7,12 +7,28 @@ import { useQuery } from "@tanstack/react-query";
 export default function Table() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof User;
+    direction: "ascending" | "descending";
+  } | null>(null);
   const limit = 5;
 
   const { data, error, isLoading } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: getUsers,
   });
+
+  const handleSort = (key: keyof User) => {
+    let direction: "ascending" | "descending" = "ascending";
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === "ascending"
+    ) {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
 
   const filteredData = data?.filter(
     (user) =>
@@ -31,6 +47,23 @@ export default function Table() {
   };
 
   const paginatedData = filteredData?.slice((page - 1) * limit, page * limit);
+
+  const sortedPaginatedData = React.useMemo(() => {
+    if (!paginatedData) return [];
+    let sortableData = [...paginatedData];
+    if (sortConfig !== null) {
+      sortableData.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableData;
+  }, [paginatedData, sortConfig]);
 
   useEffect(() => {
     setPage(1); // Reset to first page on new search
@@ -59,7 +92,7 @@ export default function Table() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search"
-                  className="block w-full rounded-md border-0 bg-gray-700 py-1.5 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-gray-300 focus:text-gray-900 focus:ring-0 focus:outline-none sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 bg-gray-700 py-1.5 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -71,32 +104,56 @@ export default function Table() {
                       <tr>
                         <th
                           scope="col"
-                          className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0 "
+                          className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0 cursor-pointer"
+                          onClick={() => handleSort("name")}
                         >
-                          Name
+                          Name{" "}
+                          {sortConfig?.key === "name"
+                            ? sortConfig.direction === "ascending"
+                              ? "↑"
+                              : "↓"
+                            : ""}
                         </th>
                         <th
                           scope="col"
-                          className="px-3 py-3.5 text-left text-sm font-semibold text-white"
+                          className="px-3 py-3.5 text-left text-sm font-semibold text-white cursor-pointer"
+                          onClick={() => handleSort("username")}
                         >
-                          Username
+                          Username{" "}
+                          {sortConfig?.key === "username"
+                            ? sortConfig.direction === "ascending"
+                              ? "↑"
+                              : "↓"
+                            : ""}
                         </th>
                         <th
                           scope="col"
-                          className="px-3 py-3.5 text-left text-sm font-semibold text-white"
+                          className="px-3 py-3.5 text-left text-sm font-semibold text-white cursor-pointer"
+                          onClick={() => handleSort("email")}
                         >
-                          Email
+                          Email{" "}
+                          {sortConfig?.key === "email"
+                            ? sortConfig.direction === "ascending"
+                              ? "↑"
+                              : "↓"
+                            : ""}
                         </th>
                         <th
                           scope="col"
-                          className="px-3 py-3.5 text-left text-sm font-semibold text-white"
+                          className="px-3 py-3.5 text-left text-sm font-semibold text-white cursor-pointer"
+                          onClick={() => handleSort("website")}
                         >
-                          Website
+                          Website{" "}
+                          {sortConfig?.key === "website"
+                            ? sortConfig.direction === "ascending"
+                              ? "↑"
+                              : "↓"
+                            : ""}
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-800">
-                      {paginatedData?.map((item: User) => (
+                      {sortedPaginatedData.map((item: User) => (
                         <tr key={item?.email}>
                           <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
                             {item?.name}
@@ -139,7 +196,7 @@ export default function Table() {
             Showing{" "}
             <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
             <span className="font-medium">
-              {Math.min(page * limit, filteredData?.length || 0)}
+              {Math.min(page * limit, Number(filteredData?.length))}
             </span>{" "}
             of <span className="font-medium">{filteredData?.length}</span>{" "}
             results
