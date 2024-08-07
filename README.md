@@ -16,13 +16,22 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+This project is displays a table of user data, allowing for search, pagination, and sorting functionalities. It includes a modal for displaying detailed information about each user.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Features:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Search: Users can search for specific users by name or email.
+Debounce: Search input is debounced to improve performance and avoid unnecessary API calls.
+Pagination: User data is paginated, with controls for navigating between pages.
+Sorting: Users can sort the data by name, username, email, and website.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Dependencies:
+React
+React Query
+Axios
+headlessui
+Tailwind
+Heroicons
 
 ## Learn More
 
