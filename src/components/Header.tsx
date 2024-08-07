@@ -3,7 +3,7 @@ import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function Header() {
   return (
-    <nav className="bg-gray-800">
+    <nav className="bg-gray-800 sticky top-0">
       <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-end">
