@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useDebounce, usePagination, useSort } from "@/hooks";
 import { getUsers } from "@/services";
 import { User } from "@/types";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
-
 import Modal from "./Modal";
-import { useDebounce, usePagination, useSort } from "@/hooks";
 
-export default function Table() {
+export default function UsersDataTable() {
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
@@ -45,9 +44,9 @@ export default function Table() {
 
   return (
     <div className="flex flex-col w-full h-full bg-gray-900 justify-between rounded">
-      <div className="w-full !rounded">
-        <div className="bg-gray-900 py-10">
-          <div className="px-4 sm:px-6 lg:px-8">
+      <div className="w-full  ">
+        <div className="bg-gray-900 py-10 ">
+          <div className="px-4 sm:px-6 lg:px-8 ">
             <div className="w-full max-w-lg lg:max-w-xs">
               <label htmlFor="search" className="sr-only">
                 Search
@@ -70,9 +69,9 @@ export default function Table() {
                 />
               </div>
             </div>
-            <div className="mt-8 flow-root">
-              <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <div className="mt-8 flow-root ">
+              <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+                <div className="inline-block min-w-full  py-2 align-middle sm:px-6 lg:px-8">
                   <table className="min-w-full ">
                     <colgroup>
                       <col className="w-full sm:w-1/3 md:w-1/4" />
@@ -155,6 +154,13 @@ export default function Table() {
                       ))}
                     </tbody>
                   </table>
+                  {!sortedData.length && (
+                    <div className="w-full h-full flex justify-center items-center mt-20  ">
+                      <p className="mt-6 text-base leading-7 text-gray-600">
+                        Sorry, we couldn’t find the data you’re looking for.
+                      </p>
+                    </div>
+                  )}
                   {isLoading && (
                     <div className="flex flex-col gap-2">
                       {[...Array(5)].map((_, i) => (
@@ -195,7 +201,7 @@ export default function Table() {
           </button>
           <button
             onClick={nextPage}
-            disabled={page === totalPages}
+            disabled={page >= totalPages}
             className="relative ml-3 inline-flex items-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-300 ring-1 ring-inset ring-gray-600 hover:bg-gray-500 focus-visible:outline-offset-0 transition-all duration-150 delay-100 disabled:bg-gray-500/10 disabled:text-gray-100/10 "
           >
             Next
