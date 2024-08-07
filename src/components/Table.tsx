@@ -4,33 +4,16 @@ import { User } from "@/types";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
 import useDebounce from "@/hooks/useDebounce";
+import { usePagination } from "@/hooks/usePagination";
+import { useSort } from "@/hooks/useSort";
 
 export default function Table() {
-  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof User;
-    direction: "ascending" | "descending";
-  } | null>(null);
-  const limit = 5;
-
   const { data, error, isLoading } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: getUsers,
   });
-
-  const handleSort = (key: keyof User) => {
-    let direction: "ascending" | "descending" = "ascending";
-    if (
-      sortConfig &&
-      sortConfig.key === key &&
-      sortConfig.direction === "ascending"
-    ) {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
-  };
 
   const filteredData = data?.filter(
     (user) =>
@@ -38,38 +21,11 @@ export default function Table() {
       user.email.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
-  const totalPages = filteredData ? Math.ceil(filteredData.length / limit) : 0;
-
-  const handleNextPage = () => {
-    setPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const handlePreviousPage = () => {
-    setPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const paginatedData = filteredData?.slice((page - 1) * limit, page * limit);
-
-  const sortedPaginatedData = React.useMemo(() => {
-    if (!paginatedData) return [];
-    let sortableData = [...paginatedData];
-    if (sortConfig !== null) {
-      sortableData.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return sortableData;
-  }, [paginatedData, sortConfig]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
+  const { page, totalPages, nextPage, prevPage, paginatedData } = usePagination(
+    filteredData || [],
+    5
+  );
+  const { sortedData, handleSort, sortConfig } = useSort(paginatedData);
 
   return (
     <div className="flex flex-col w-full h-full bg-gray-900 justify-between rounded">
@@ -155,7 +111,7 @@ export default function Table() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-800">
-                      {sortedPaginatedData.map((item: User) => (
+                      {sortedData.map((item: User) => (
                         <tr key={item?.email}>
                           <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
                             {item?.name}
@@ -195,10 +151,9 @@ export default function Table() {
       >
         <div className="hidden sm:block">
           <p className="text-sm text-gray-700">
-            Showing{" "}
-            <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
+            Showing <span className="font-medium">{(page - 1) * 5 + 1}</span> to{" "}
             <span className="font-medium">
-              {Math.min(page * limit, Number(filteredData?.length))}
+              {Math.min(page * 5, Number(filteredData?.length))}
             </span>{" "}
             of <span className="font-medium">{filteredData?.length}</span>{" "}
             results
@@ -206,14 +161,14 @@ export default function Table() {
         </div>
         <div className="flex flex-1 justify-between sm:justify-end">
           <button
-            onClick={handlePreviousPage}
+            onClick={prevPage}
             disabled={page === 1}
             className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
           >
             Previous
           </button>
           <button
-            onClick={handleNextPage}
+            onClick={nextPage}
             disabled={page === totalPages}
             className="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
           >
