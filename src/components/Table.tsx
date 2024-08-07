@@ -6,14 +6,17 @@ import { useQuery } from "@tanstack/react-query";
 import useDebounce from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import { useSort } from "@/hooks/useSort";
+import Modal from "./Modal";
 
 export default function Table() {
   const [search, setSearch] = useState("");
+  const [openModal, setOpenModal] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
   const { data, error, isLoading } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: getUsers,
   });
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const filteredData = data?.filter(
     (user) =>
@@ -26,6 +29,11 @@ export default function Table() {
     5
   );
   const { sortedData, handleSort, sortConfig } = useSort(paginatedData);
+
+  const HandleOpenModal = (user: User) => {
+    setSelectedUser(user);
+    setOpenModal(true);
+  };
 
   return (
     <div className="flex flex-col w-full h-full bg-gray-900 justify-between rounded">
@@ -112,8 +120,12 @@ export default function Table() {
                     </thead>
                     <tbody className="divide-y divide-gray-800">
                       {sortedData.map((item: User) => (
-                        <tr key={item?.email}>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
+                        <tr
+                          key={item?.id}
+                          onClick={() => HandleOpenModal(item)}
+                          className="cursor-pointer"
+                        >
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
                             {item?.name}
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
@@ -176,6 +188,35 @@ export default function Table() {
           </button>
         </div>
       </nav>
+
+      <Modal
+        open={openModal}
+        setOpen={setOpenModal}
+        title={selectedUser?.name ? selectedUser?.name : ""}
+      >
+        <div className=" flex flex-col items-start ">
+          <div className="flex gap-2 p-4 w-full ">
+            <h3 className="font-bold  uppercase">username:</h3>
+            <span>{selectedUser?.username}</span>
+          </div>
+          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full ">
+            <h3 className="font-bold  uppercase">website:</h3>
+            <span>{selectedUser?.website}</span>
+          </div>
+          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full ">
+            <h3 className="font-bold  uppercase">phone:</h3>
+            <span>{selectedUser?.phone}</span>
+          </div>
+          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full ">
+            <h3 className="font-bold  uppercase">company name:</h3>
+            <span>{selectedUser?.company?.name}</span>
+          </div>
+          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full">
+            <h3 className="font-bold  uppercase">city:</h3>
+            <span>{selectedUser?.address?.city}</span>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
