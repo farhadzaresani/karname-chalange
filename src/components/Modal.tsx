@@ -15,10 +15,6 @@ type Iprops = {
 };
 
 const Modal: React.FC<Iprops> = ({ open, setOpen, title, children }) => {
-  const onCloseHanlder = async () => {
-    setOpen(false);
-  };
-
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
       <DialogBackdrop

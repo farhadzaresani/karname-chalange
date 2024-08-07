@@ -3,10 +3,9 @@ import { getUsers } from "@/services";
 import { User } from "@/types";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
-import useDebounce from "@/hooks/useDebounce";
-import { usePagination } from "@/hooks/usePagination";
-import { useSort } from "@/hooks/useSort";
+
 import Modal from "./Modal";
+import { useDebounce, usePagination, useSort } from "@/hooks";
 
 export default function Table() {
   const [search, setSearch] = useState("");
@@ -24,16 +23,25 @@ export default function Table() {
       user.email.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
-  const { page, totalPages, nextPage, prevPage, paginatedData } = usePagination(
-    filteredData || [],
-    5
-  );
+  const {
+    page,
+    totalPages,
+    nextPage,
+    prevPage,
+    paginatedData,
+    resetPagination,
+  } = usePagination(filteredData || [], 5);
+
   const { sortedData, handleSort, sortConfig } = useSort(paginatedData);
 
   const HandleOpenModal = (user: User) => {
     setSelectedUser(user);
     setOpenModal(true);
   };
+
+  useEffect(() => {
+    resetPagination();
+  }, [debouncedSearch]);
 
   return (
     <div className="flex flex-col w-full h-full bg-gray-900 justify-between rounded">
@@ -65,7 +73,13 @@ export default function Table() {
             <div className="mt-8 flow-root">
               <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                  <table className="min-w-full divide-y divide-gray-700 ">
+                  <table className="min-w-full ">
+                    <colgroup>
+                      <col className="w-full sm:w-1/3 md:w-1/4" />
+                      <col className="sm:w-1/3 md:w-1/4" />
+                      <col className="w-full sm:w-1/3 md:w-1/4" />
+                      <col className="md:w-1/4" />
+                    </colgroup>
                     <thead>
                       <tr>
                         <th
@@ -82,7 +96,7 @@ export default function Table() {
                         </th>
                         <th
                           scope="col"
-                          className="px-3 py-3.5 text-left text-sm font-semibold text-white cursor-pointer"
+                          className="px-3 py-3.5 text-left text-sm font-semibold text-white cursor-pointer hidden sm:block"
                           onClick={() => handleSort("username")}
                         >
                           Username{" "}
@@ -106,7 +120,7 @@ export default function Table() {
                         </th>
                         <th
                           scope="col"
-                          className="px-3 py-3.5 text-left text-sm font-semibold text-white cursor-pointer"
+                          className="px-3 py-3.5 text-left text-sm font-semibold text-white cursor-pointer hidden md:block"
                           onClick={() => handleSort("website")}
                         >
                           Website{" "}
@@ -121,20 +135,20 @@ export default function Table() {
                     <tbody className="divide-y divide-gray-800">
                       {sortedData.map((item: User) => (
                         <tr
-                          key={item?.id}
+                          key={item?.id + item?.name}
                           onClick={() => HandleOpenModal(item)}
                           className="cursor-pointer"
                         >
                           <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
                             {item?.name}
                           </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 hidden sm:block">
                             {item?.username}
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                             {item?.email}
                           </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300 hidden md:block">
                             {item?.website}
                           </td>
                         </tr>
@@ -165,7 +179,7 @@ export default function Table() {
           <p className="text-sm text-gray-700">
             Showing <span className="font-medium">{(page - 1) * 5 + 1}</span> to{" "}
             <span className="font-medium">
-              {Math.min(page * 5, Number(filteredData?.length))}
+              {Math.min(page * 5, filteredData?.length || 0)}
             </span>{" "}
             of <span className="font-medium">{filteredData?.length}</span>{" "}
             results
@@ -175,14 +189,14 @@ export default function Table() {
           <button
             onClick={prevPage}
             disabled={page === 1}
-            className="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            className="relative inline-flex items-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-300 ring-1 ring-inset ring-gray-600 hover:bg-gray-500 focus-visible:outline-offset-0 transition-all duration-150 delay-100 disabled:bg-gray-500/10 disabled:text-gray-100/10 "
           >
             Previous
           </button>
           <button
             onClick={nextPage}
             disabled={page === totalPages}
-            className="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            className="relative ml-3 inline-flex items-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-300 ring-1 ring-inset ring-gray-600 hover:bg-gray-500 focus-visible:outline-offset-0 transition-all duration-150 delay-100 disabled:bg-gray-500/10 disabled:text-gray-100/10 "
           >
             Next
           </button>

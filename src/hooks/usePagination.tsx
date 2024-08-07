@@ -1,16 +1,38 @@
-// usePagination.ts
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export function usePagination(data: any[], itemsPerPage: number) {
-  const [page, setPage] = useState(1);
+  const router = useRouter();
+  const { query } = router;
+  const page = query.page ? Number(query.page) : 1;
+
+  const setPage = (newPage: number) => {
+    router.push({
+      pathname: router.pathname,
+      query: { ...query, page: newPage },
+    });
+  };
   const totalPages = data ? Math.ceil(data.length / itemsPerPage) : 0;
 
-  const nextPage = () => setPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => setPage((prev) => Math.max(prev - 1, 1));
+  const nextPage = () => {
+    page < totalPages && setPage(page + 1);
+  };
+  const prevPage = () => setPage(Math.max(page - 1, 1));
   const paginatedData = data?.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
 
-  return { page, totalPages, nextPage, prevPage, paginatedData };
+  const resetPagination = () => {
+    setPage(1);
+  };
+
+  return {
+    page,
+    totalPages,
+    nextPage,
+    prevPage,
+    paginatedData,
+    resetPagination,
+  };
 }
