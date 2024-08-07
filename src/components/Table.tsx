@@ -3,10 +3,12 @@ import { getUsers } from "@/services";
 import { User } from "@/types";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
+import useDebounce from "@/hooks/useDebounce";
 
 export default function Table() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof User;
     direction: "ascending" | "descending";
@@ -32,8 +34,8 @@ export default function Table() {
 
   const filteredData = data?.filter(
     (user) =>
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
+      user.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      user.email.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const totalPages = filteredData ? Math.ceil(filteredData.length / limit) : 0;
@@ -66,8 +68,8 @@ export default function Table() {
   }, [paginatedData, sortConfig]);
 
   useEffect(() => {
-    setPage(1); // Reset to first page on new search
-  }, [search]);
+    setPage(1);
+  }, [debouncedSearch]);
 
   return (
     <div className="flex flex-col w-full h-full bg-gray-900 justify-between rounded">
