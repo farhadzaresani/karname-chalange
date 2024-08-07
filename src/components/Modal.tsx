@@ -15,6 +15,8 @@ type Iprops = {
 };
 
 const Modal: React.FC<Iprops> = ({ open, setOpen, title, children }) => {
+  if (!children) return;
+
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
       <DialogBackdrop
@@ -26,7 +28,7 @@ const Modal: React.FC<Iprops> = ({ open, setOpen, title, children }) => {
         <div className="flex min-h-full items-end justify-center  text-center sm:items-center ">
           <DialogPanel
             transition
-            className="p-2 relative transform overflow-hidden rounded-lg bg-gray-900 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in m-4 sm:my-8 w-full sm:max-w-lg  data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="p-2 relative transform overflow-hidden rounded-lg bg-gray-800 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in m-4 sm:my-8 w-full sm:max-w-lg  data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             <div className="w-full">
               <button

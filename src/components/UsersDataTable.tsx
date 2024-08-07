@@ -5,6 +5,7 @@ import { User } from "@/types";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
 import Modal from "./Modal";
+import Link from "next/link";
 
 export default function UsersDataTable() {
   const [search, setSearch] = useState("");
@@ -219,19 +220,26 @@ export default function UsersDataTable() {
             <h3 className="font-bold  uppercase">username:</h3>
             <span>{selectedUser?.username}</span>
           </div>
-          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full ">
+          <div className="flex gap-2 border-t p-4 border-t-gray-700 w-full ">
             <h3 className="font-bold  uppercase">website:</h3>
-            <span>{selectedUser?.website}</span>
+            <Link
+              className="underline text-blue-800"
+              target="_blank"
+              passHref={true}
+              href={`https://${selectedUser?.website}`}
+            >
+              {selectedUser?.website}
+            </Link>
           </div>
-          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full ">
+          <div className="flex gap-2 border-t p-4 border-t-gray-700 w-full ">
             <h3 className="font-bold  uppercase">phone:</h3>
             <span>{selectedUser?.phone}</span>
           </div>
-          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full ">
+          <div className="flex gap-2 border-t p-4 border-t-gray-700 w-full ">
             <h3 className="font-bold  uppercase">company name:</h3>
             <span>{selectedUser?.company?.name}</span>
           </div>
-          <div className="flex gap-2 border-t p-4 border-t-gray-800 w-full">
+          <div className="flex gap-2 border-t p-4 border-t-gray-700 w-full">
             <h3 className="font-bold  uppercase">city:</h3>
             <span>{selectedUser?.address?.city}</span>
           </div>
